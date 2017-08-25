@@ -48,6 +48,8 @@
                 if(document.getElementById("name").value.trim() == ''){
                     event.preventDefault();
                     document.getElementById("help-block").textContent = "* Please enter a Name.";
+                    document.getElementById("name").value = "";
+                    document.getElementById("name").focus();
                 }
             });
 

@@ -23,23 +23,45 @@ io.on('connection', (socket) => {
     console.log("User Connected");
 
     socket.on('join', function(data, callback){
-        if(data.displayName.trim() != ""){
-            if(users.indexOf(data.displayName) == -1){
+
+        // User has just joined the chat
+        if(data.displayName.trim() != "" && data.receiver == undefined){
+
+            var userExists = users.some((user) => user.name == data.displayName);
+
+            if(!userExists){
                 console.log(data.displayName);
                 callback({validity: "valid", activeUsers: users});
-                users.push(data.displayName);
+                users.push({name: data.displayName, socketID: socket.id});
+                // Broadcasting the new users list
+                io.emit('updateUsersList', {
+                    usersList: users
+                });
             }
             else{
                 callback({validity: "taken"});
             }
+
+        } // User has chosen the receiver
+        else if (data.displayName.trim() != "" && data.receiver.trim() != "") {
+
+            console.log("User: " + data.displayName + "and Receiver: " + data.receiver);
+
         }
         else{
             callback({validity: "invalid"});
         }
+
     });
 
-    socket.on('disconnect', function(data){
+    socket.on('disconnect', function(){
         console.log("User disconnected");
+        // Removing the disconnected user from the Online users list
+        newUsers = users.filter((user) => user.socketID != socket.id);
+        users = newUsers;
+        io.emit('updateUsersList', {
+            usersList: users
+        });
     });
 
 })

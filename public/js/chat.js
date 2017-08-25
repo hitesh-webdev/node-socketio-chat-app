@@ -2,9 +2,12 @@ var socket = io();
 
 var conversation = document.getElementById("conversation");
 
+/* Scroll to Bottom Function */
 function scrollToBottom(){
     conversation.scrollTop = conversation.scrollHeight;
 }
+
+/* Fetching Query String from the URL */
 
 function getParameterByName(name, url) {
     if (!url) url = window.location.href;
@@ -19,32 +22,26 @@ function getParameterByName(name, url) {
 socket.on('connect', function(){
 
     var name = getParameterByName("name");
+    var receiver = getParameterByName("receiver");
 
-    socket.emit('join', {
-        displayName: name
-    }, function(data){
-        if(data.validity == "valid"){
-            console.log(data.activeUsers);
-            console.log("Connected Successfully");
-        } else if(data.validity == "taken") {
-            alert("This name is already taken! Please select a new Name.");
-            window.location.href = "index.html";
-        } else {
-            alert("Name is required!");
-            window.location.href = "index.html";
-        } //Acknowledgement
-    });
+    socket.emit('join', {displayName: name, receiver: receiver}, 
+        function(status){   // Acknowledgement
+
+            if(status.validity == "valid"){
+                console.log(status.activeUsers);
+                console.log("Connected Successfully");
+            } else if(status.validity == "taken") {
+                alert("This name is already taken! Please select a new Name.");
+                window.location.href = "index.html";
+            } else {
+                alert("Name is required!");
+                window.location.href = "index.html";
+            }
+        }
+
+    );
 
 });
-
-socket.on('disconnect', function(){
-
-    var name = getParameterByName("name");
-
-    socket.emit("removeUser", {
-        displayName: name
-    });
-})
 
 socket.on('newMessage', function(msg){
 
@@ -57,6 +54,24 @@ socket.on('newMessage', function(msg){
     conversation.innerHTML += html;
 
 });
+
+socket.on('updateUsersList', function(data){
+
+    var name = getParameterByName("name");
+
+    var onlineUsers = document.getElementById("onlineUsers");
+    onlineUsers.innerHTML = "";
+
+    var template = document.getElementById("user-list-template").innerHTML;
+
+    // Showing users apart from the logged in user
+    var otherUsers = data.usersList.filter((user) => user.name != name);
+
+    otherUsers.forEach(function(user) {
+        var html = Mustache.render(template, {name: user.name});
+        onlineUsers.innerHTML += html;
+    });
+})
 
 document.getElementById("send-btn").addEventListener('click', function(){
     var msgBox = document.getElementById("comment");
