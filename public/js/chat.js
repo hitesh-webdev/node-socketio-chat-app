@@ -1,6 +1,7 @@
 var socket = io();
 
 var conversation = document.getElementById("conversation");
+var roomName = "";
 
 /* Scroll to Bottom Function */
 function scrollToBottom(){
@@ -18,6 +19,8 @@ function getParameterByName(name, url) {
     if (!results[2]) return '';
     return decodeURIComponent(results[2].replace(/\+/g, " "));
 }
+
+// On Connection
 
 socket.on('connect', function(){
 
@@ -43,6 +46,8 @@ socket.on('connect', function(){
 
 });
 
+// On new Message
+
 socket.on('newMessage', function(msg){
 
     var template = document.getElementById("receiver-msg-template").innerHTML;
@@ -54,6 +59,27 @@ socket.on('newMessage', function(msg){
     conversation.innerHTML += html;
 
 });
+
+// Setting a new Receiver and fetching messages
+
+function setReceiver(receiver){
+
+    var name = getParameterByName("name");
+    var chatName = document.getElementById("chat-name");
+    chatName.textContent = receiver;
+
+    socket.emit("getRoom", {
+        user: name,
+        receiver: receiver
+    }, function(room) {
+        roomName = room;
+    });
+
+    alert(roomName);
+
+}
+
+// On Update Users List
 
 socket.on('updateUsersList', function(data){
 
@@ -71,7 +97,10 @@ socket.on('updateUsersList', function(data){
         var html = Mustache.render(template, {name: user.name});
         onlineUsers.innerHTML += html;
     });
-})
+});
+
+
+// Sending a new Message
 
 document.getElementById("send-btn").addEventListener('click', function(){
     var msgBox = document.getElementById("comment");
@@ -83,4 +112,4 @@ document.getElementById("send-btn").addEventListener('click', function(){
         msgBox.value = '';
     });  
 
-})
+});

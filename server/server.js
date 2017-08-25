@@ -54,6 +54,11 @@ io.on('connection', (socket) => {
 
     });
 
+    socket.on("getRoom", function(data, callback){
+        roomName = data.user + "-" + data.receiver;
+        callback(roomName);
+    });
+
     socket.on('disconnect', function(){
         console.log("User disconnected");
         // Removing the disconnected user from the Online users list
