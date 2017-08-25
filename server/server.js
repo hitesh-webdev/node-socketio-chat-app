@@ -16,18 +16,30 @@ const publicPath = path.join(__dirname + '/../public');
 
 app.use(express.static(publicPath));
 
+var users = [];
+
 io.on('connection', (socket) => {
-    
+
     console.log("User Connected");
 
-    socket.on('join', function(data,callback){
+    socket.on('join', function(data, callback){
         if(data.displayName.trim() != ""){
-            console.log(data.displayName);
-            callback({validity: true})
+            if(users.indexOf(data.displayName) == -1){
+                console.log(data.displayName);
+                callback({validity: "valid", activeUsers: users});
+                users.push(data.displayName);
+            }
+            else{
+                callback({validity: "taken"});
+            }
         }
         else{
-            callback({validity: false});
+            callback({validity: "invalid"});
         }
+    });
+
+    socket.on('disconnect', function(data){
+        console.log("User disconnected");
     });
 
 })

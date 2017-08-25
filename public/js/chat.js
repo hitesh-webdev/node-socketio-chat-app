@@ -23,8 +23,12 @@ socket.on('connect', function(){
     socket.emit('join', {
         displayName: name
     }, function(data){
-        if(data.validity){
+        if(data.validity == "valid"){
+            console.log(data.activeUsers);
             console.log("Connected Successfully");
+        } else if(data.validity == "taken") {
+            alert("This name is already taken! Please select a new Name.");
+            window.location.href = "index.html";
         } else {
             alert("Name is required!");
             window.location.href = "index.html";
@@ -32,6 +36,15 @@ socket.on('connect', function(){
     });
 
 });
+
+socket.on('disconnect', function(){
+
+    var name = getParameterByName("name");
+
+    socket.emit("removeUser", {
+        displayName: name
+    });
+})
 
 socket.on('newMessage', function(msg){
 
