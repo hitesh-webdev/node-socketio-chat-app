@@ -193,15 +193,16 @@ document.getElementById("send-btn").addEventListener('click', function(){
     if(roomName != undefined){
 
         // alert(roomName);
+        var message = msgBox.value.trim();
+        msgBox.value = '';
 
         // Sending the new message
         socket.emit('sendMessage', {
             sender: senderName,
             roomName: roomName,
-            text: msgBox.value.trim(),
+            text: message,
             sentAt: new Date().getTime() 
         }, function(){
-            msgBox.value = '';
             // Rerendering the current room's messages
             fetchRoomMessages();
         });  
