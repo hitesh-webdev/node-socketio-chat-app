@@ -177,7 +177,10 @@ socket.on('updateUsersList', function(data){
 
 // Sending a new Message
 
-document.getElementById("send-btn").addEventListener('click', function(){
+document.getElementById("chat-form").addEventListener('submit', function(event){
+
+    // Stopping the form from getting submitted
+    event.preventDefault();
 
     var msgBox = document.getElementById("comment");
 
