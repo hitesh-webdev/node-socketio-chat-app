@@ -30,26 +30,7 @@
           <!-- sideBar -->
           <div class="row sideBar" id="onlineUsers">
 
-
-            <div class="row sideBar-body">
-              <div class="col-sm-3 col-xs-3 sideBar-avatar">
-                <div class="avatar-icon">
-                  <img src="http://shurl.esy.es/y">
-                </div>
-              </div>
-              <div class="col-sm-9 col-xs-9 sideBar-main">
-                <div class="row">
-                  <div class="col-sm-8 col-xs-8 sideBar-name">
-                    <span class="name-meta">Ankit Jain
-                  </span>
-                  </div>
-                  <div class="col-sm-4 col-xs-4 pull-right sideBar-time">
-                    <span class="time-meta pull-right">18:18
-                  </span>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <!-- Online Users List will be populated here -->
         
           </div>
         </div>
@@ -81,41 +62,10 @@
         <!-- Heading End -->
 
         <!-- Message Box -->
-        <div class="row message" id="conversation">
+        <div class="row message" id="conversation" style="padding-top: 20px !important;">
 
-          <div class="row message-previous">
-            <div class="col-sm-12 previous">
-              <a onclick="previous(this)" id="ankitjain28" name="20">
-              Show Previous Message!
-              </a>
-            </div>
-          </div>
-
-          <div class="row message-body">
-            <div class="col-sm-12 message-main-receiver">
-              <div class="receiver">
-                <div class="message-text">
-                 Hyy, Its Awesome..!
-                </div>
-                <span class="message-time pull-right">
-                  Sun
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div class="row message-body">
-            <div class="col-sm-12 message-main-sender">
-              <div class="sender">
-                <div class="message-text">
-                  Thanks n I know its awesome...!
-                </div>
-                <span class="message-time pull-right">
-                  Sun
-                </span>
-              </div>
-            </div>
-          </div>
+        <!-- Messages will be populated here -->    
+        <h3 style="text-align: center; margin-top: 100px;">Select a user to start chatting!</h3>       
 
         </div>
         <!-- Message Box End -->
@@ -148,10 +98,10 @@
             <div class="col-sm-12 message-main-sender">
               <div class="sender">
                 <div class="message-text">
-                  Thanks n I know its awesome...!
+                  {{text}}
                 </div>
                 <span class="message-time pull-right">
-                  Sun
+                  {{sentAt}}
                 </span>
               </div>
             </div>
@@ -192,7 +142,7 @@
               </div>
             </div>
           </div>
-        </div>
+      </div>
     </script>
 
     <!-- Mustache Message Templates end -->

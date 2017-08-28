@@ -1,7 +1,8 @@
 var socket = io();
 
 var conversation = document.getElementById("conversation");
-var roomName = "";
+var roomName;
+var chatReceiver;
 
 /* Scroll to Bottom Function */
 function scrollToBottom(){
@@ -25,9 +26,8 @@ function getParameterByName(name, url) {
 socket.on('connect', function(){
 
     var name = getParameterByName("name");
-    var receiver = getParameterByName("receiver");
 
-    socket.emit('join', {displayName: name, receiver: receiver}, 
+    socket.emit('join', {displayName: name}, 
         function(status){   // Acknowledgement
 
             if(status.validity == "valid"){
@@ -50,13 +50,7 @@ socket.on('connect', function(){
 
 socket.on('newMessage', function(msg){
 
-    var template = document.getElementById("receiver-msg-template").innerHTML;
-    var formattedTime = moment(msg.sentAt).format("hh:mm a");
-    var html = Mustache.render(template, {
-        text: msg.text,
-        sentAt: formattedTime
-    });
-    conversation.innerHTML += html;
+    fetchRoomMessages();
 
 });
 
@@ -66,6 +60,7 @@ function setReceiver(receiver){
 
     var name = getParameterByName("name");
     var chatName = document.getElementById("chat-name");
+    chatReceiver = receiver;
     chatName.textContent = receiver;
 
     socket.emit("getRoom", {
@@ -73,10 +68,48 @@ function setReceiver(receiver){
         receiver: receiver
     }, function(room) {
         roomName = room;
+        alert(roomName);
+        fetchRoomMessages();
     });
 
-    alert(roomName);
+}
 
+// Fetching room messages
+
+function fetchRoomMessages(){
+    socket.emit('fetchRoomMessages', {roomName: roomName}, function(roomMsgs){
+        // Filling the conversation box with room messages
+        console.log(roomMsgs);
+
+        var sender = getParameterByName("name");
+        conversation.innerHTML = "";
+
+        if(roomMsgs != null) {
+
+            roomMsgs.forEach(function(msg){
+                if(msg.from == sender) {
+                    var template = document.getElementById("sender-msg-template").innerHTML;
+                    var formattedTime = moment(msg.sentAt).format("hh:mm a");
+                    var html = Mustache.render(template, {
+                        text: msg.text,
+                        sentAt: formattedTime
+                    });
+                    conversation.innerHTML += html;
+                }
+                else if(msg.from == chatReceiver) {
+                    var template = document.getElementById("receiver-msg-template").innerHTML;
+                    var formattedTime = moment(msg.sentAt).format("hh:mm a");
+                    var html = Mustache.render(template, {
+                        text: msg.text,
+                        sentAt: formattedTime
+                    });
+                    conversation.innerHTML += html;
+                }
+            });
+
+        }
+
+    });
 }
 
 // On Update Users List
@@ -103,13 +136,26 @@ socket.on('updateUsersList', function(data){
 // Sending a new Message
 
 document.getElementById("send-btn").addEventListener('click', function(){
-    var msgBox = document.getElementById("comment");
-    
-    socket.emit('sendMessage', {
-        text: msgBox.value,
-        sentAt: new Date().getTime() 
-    }, function(){
-        msgBox.value = '';
-    });  
+
+    if(roomName != undefined){
+
+        var msgBox = document.getElementById("comment");
+        var name = getParameterByName("name");
+
+        // alert(roomName);
+        
+        socket.emit('sendMessage', {
+            sender: name,
+            roomName: roomName,
+            text: msgBox.value,
+            sentAt: new Date().getTime() 
+        }, function(){
+            msgBox.value = '';
+            fetchRoomMessages();
+        });  
+    }
+    else {
+        alert("Please select a user first!");
+    }
 
 });
