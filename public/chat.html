@@ -51,7 +51,7 @@
             </div>
           </div>
           <div class="col-sm-8 col-xs-7 heading-name">
-            <a class="heading-name-meta" id="chat-name">Ankit Jain
+            <a class="heading-name-meta" id="chat-name">Node Socket.IO Chat App
             </a>
             <span class="heading-online">Online</span>
           </div>
@@ -65,13 +65,13 @@
         <div class="row message" id="conversation" style="padding-top: 20px !important;">
 
         <!-- Messages will be populated here -->    
-        <h3 style="text-align: center; margin-top: 100px;">Select a user to start chatting!</h3>       
+        <h3 style="text-align: center; margin-top: 200px;">Select a user to start chatting!</h3>       
 
         </div>
         <!-- Message Box End -->
 
         <!-- Reply Box -->
-        <div class="row reply">
+        <div class="row reply" style="background-color: #eee;">
           
           <div class="col-sm-11 col-xs-11 reply-main">
             <textarea class="form-control" rows="1" id="comment"></textarea>
@@ -93,6 +93,8 @@
 
   <!-- Mustache Message Templates start -->
 
+    <!-- Sender message template -->
+
     <script id="sender-msg-template" type="text/template">
         <div class="row message-body">
             <div class="col-sm-12 message-main-sender">
@@ -107,6 +109,8 @@
             </div>
         </div>
     </script>
+
+    <!-- Receiver message template -->
 
     <script id="receiver-msg-template" type="text/template">
         <div class="row message-body">
@@ -123,6 +127,8 @@
         </div>
     </script>
 
+    <!-- Online Users list item template -->
+
     <script id="user-list-template" type="text/template">
       <div class="row sideBar-body" onClick="setReceiver('{{name}}')">
           <div class="col-sm-3 col-xs-3 sideBar-avatar">
@@ -132,13 +138,9 @@
           </div>
           <div class="col-sm-9 col-xs-9 sideBar-main">
             <div class="row">
-              <div class="col-sm-8 col-xs-8 sideBar-name">
+              <div class="col-sm-12 col-xs-12 sideBar-name">
                 <span class="name-meta">{{name}}
-              </span>
-              </div>
-              <div class="col-sm-4 col-xs-4 pull-right sideBar-time">
-                <span class="time-meta pull-right">18:18
-              </span>
+                </span>
               </div>
             </div>
           </div>

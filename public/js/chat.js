@@ -1,8 +1,11 @@
+// Global variables
+
 var socket = io();
 
 var conversation = document.getElementById("conversation");
-var roomName;
+var senderName = getParameterByName("name");
 var chatReceiver;
+var roomName;
 
 /* Scroll to Bottom Function */
 function scrollToBottom(){
@@ -25,13 +28,13 @@ function getParameterByName(name, url) {
 
 socket.on('connect', function(){
 
-    var name = getParameterByName("name");
+    // Making the user join the chat on connection to the server
 
-    socket.emit('join', {displayName: name}, 
-        function(status){   // Acknowledgement
+    socket.emit('join', {displayName: senderName}, 
+        function(status){   // Acknowledgement (display name validity status)
 
             if(status.validity == "valid"){
-                console.log(status.activeUsers);
+                // console.log(status.onlineUsers);
                 console.log("Connected Successfully");
             } else if(status.validity == "taken") {
                 alert("This name is already taken! Please select a new Name.");
@@ -50,6 +53,7 @@ socket.on('connect', function(){
 
 socket.on('newMessage', function(msg){
 
+    // Fetching room messages when a new message is sent to this room
     fetchRoomMessages();
 
 });
@@ -58,17 +62,20 @@ socket.on('newMessage', function(msg){
 
 function setReceiver(receiver){
 
-    var name = getParameterByName("name");
-    var chatName = document.getElementById("chat-name");
-    chatReceiver = receiver;
-    chatName.textContent = receiver;
+    var chatTitle = document.getElementById("chat-name");
 
+    // Setting the chat receiver's name
+    chatReceiver = receiver;
+    chatTitle.textContent = receiver;
+
+    // Getting the room name of the current receiver
     socket.emit("getRoom", {
-        user: name,
+        sender: senderName,
         receiver: receiver
     }, function(room) {
         roomName = room;
-        alert(roomName);
+        // alert(roomName);
+        // Fetching the messages of the current room
         fetchRoomMessages();
     });
 
@@ -77,17 +84,25 @@ function setReceiver(receiver){
 // Fetching room messages
 
 function fetchRoomMessages(){
+
     socket.emit('fetchRoomMessages', {roomName: roomName}, function(roomMsgs){
-        // Filling the conversation box with room messages
+
         console.log(roomMsgs);
 
-        var sender = getParameterByName("name");
+        // Clearing off the current chat screen
         conversation.innerHTML = "";
 
-        if(roomMsgs != null) {
+        // Filling the conversation box with room messages
+
+        if(roomMsgs != null && roomMsgs.length > 0) {  // If the current room contains messages
+
+            // Filtering each room message based on the sender of the message
 
             roomMsgs.forEach(function(msg){
-                if(msg.from == sender) {
+
+                // If message id from the sender
+
+                if(msg.from == senderName) {
                     var template = document.getElementById("sender-msg-template").innerHTML;
                     var formattedTime = moment(msg.sentAt).format("hh:mm a");
                     var html = Mustache.render(template, {
@@ -95,7 +110,7 @@ function fetchRoomMessages(){
                         sentAt: formattedTime
                     });
                     conversation.innerHTML += html;
-                }
+                } // If message is from the receiver
                 else if(msg.from == chatReceiver) {
                     var template = document.getElementById("receiver-msg-template").innerHTML;
                     var formattedTime = moment(msg.sentAt).format("hh:mm a");
@@ -108,6 +123,16 @@ function fetchRoomMessages(){
             });
 
         }
+        else {
+
+            alert('hello');
+
+            conversation.innerHTML = '<h3 style="text-align: center; margin-top: 200px;">No messages to show from this chat.</h3>';
+
+        }
+
+        // Scrolling the chat conversation to the see lastest message
+        scrollToBottom();
 
     });
 }
@@ -116,20 +141,34 @@ function fetchRoomMessages(){
 
 socket.on('updateUsersList', function(data){
 
-    var name = getParameterByName("name");
-
     var onlineUsers = document.getElementById("onlineUsers");
+
+    // Clearing off the current online users list 
     onlineUsers.innerHTML = "";
 
-    var template = document.getElementById("user-list-template").innerHTML;
+    // Checking if users are online other than the current user 
 
-    // Showing users apart from the logged in user
-    var otherUsers = data.usersList.filter((user) => user.name != name);
+    if(data.usersList.length > 1){
 
-    otherUsers.forEach(function(user) {
-        var html = Mustache.render(template, {name: user.name});
-        onlineUsers.innerHTML += html;
-    });
+        var template = document.getElementById("user-list-template").innerHTML;
+
+        // Showing users apart from the logged in user (removing the name of logged in user from the Online Users list)
+        var otherUsers = data.usersList.filter((user) => user.name != senderName);
+
+        otherUsers.forEach(function(user) {
+            var html = Mustache.render(template, {name: user.name});
+            onlineUsers.innerHTML += html;
+        });
+
+    }
+    else {
+
+        // Suggesting user to add the app in a new tab to add other online users
+
+        onlineUsers.innerHTML = '<h3 style="text-align: center;">No user is online.<h3><p style="font-size: 14px; text-align: center;">(Open this App in a new tab also, to add other users).</p>';
+
+    }
+
 });
 
 
@@ -137,24 +176,38 @@ socket.on('updateUsersList', function(data){
 
 document.getElementById("send-btn").addEventListener('click', function(){
 
+    var msgBox = document.getElementById("comment");
+
+    // Validating the contents of the message
+
+    if(msgBox.value.trim() == ""){
+        alert("Please enter a Message");
+        return false;
+    }
+
+    // Checking if the chat receiver is set or not
+
     if(roomName != undefined){
 
-        var msgBox = document.getElementById("comment");
-        var name = getParameterByName("name");
-
         // alert(roomName);
-        
+
+        // Sending the new message
         socket.emit('sendMessage', {
-            sender: name,
+            sender: senderName,
             roomName: roomName,
-            text: msgBox.value,
+            text: msgBox.value.trim(),
             sentAt: new Date().getTime() 
         }, function(){
             msgBox.value = '';
+            // Rerendering the current room's messages
             fetchRoomMessages();
         });  
+
     }
     else {
+
+        // Notifying the user if the chat receiver is not set
+        msgBox.value = '';
         alert("Please select a user first!");
     }
 
