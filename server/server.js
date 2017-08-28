@@ -123,6 +123,12 @@ io.on('connection', (socket) => {
             usersList: users
         });
 
+        // Clearing all the rooms and their messages when all users disconnect (to keep the server file size optimized as server side array is used and not a persistent storage like database)
+
+        if(users.length == 0){
+            rooms = {};
+        }
+
     });
 
 });
