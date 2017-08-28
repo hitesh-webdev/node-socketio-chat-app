@@ -7,6 +7,11 @@ var senderName = getParameterByName("name");
 var chatReceiver;
 var roomName;
 
+/* Checking the existence of query string */
+if(senderName == undefined) {
+    window.location.href = "index.html";
+}
+
 /* Scroll to Bottom Function */
 function scrollToBottom(){
     conversation.scrollTop = conversation.scrollHeight;
@@ -87,7 +92,7 @@ function fetchRoomMessages(){
 
     socket.emit('fetchRoomMessages', {roomName: roomName}, function(roomMsgs){
 
-        console.log(roomMsgs);
+        // console.log(roomMsgs);
 
         // Clearing off the current chat screen
         conversation.innerHTML = "";
@@ -124,8 +129,6 @@ function fetchRoomMessages(){
 
         }
         else {
-
-            alert('hello');
 
             conversation.innerHTML = '<h3 style="text-align: center; margin-top: 200px;">No messages to show from this chat.</h3>';
 
